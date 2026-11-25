@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dunk Calculator — How High Do You Need to Jump to Dunk?</title>
+</head>
+<body>
+<div id="dcw">
+<style>
+#dcw *{box-sizing:border-box}
+#dcw{--dc-line:#e3e7ee;--dc-soft:#f5f7fb;--dc-ink:#14181f;--dc-mut:#5a6472;--dc-br:#d7452b;--dc-good:#1f8a4c;--dc-warn:#c6871a;--dc-bad:#c23b2b;max-width:860px;margin:0 auto;font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;color:var(--dc-ink)}
+#dcw .dc-card-wrap{border:1px solid var(--dc-line);border-radius:14px;box-shadow:0 10px 34px rgba(11,27,43,.12);overflow:hidden;background:#fff}
+#dcw .dc-modes{display:flex;border-bottom:1px solid var(--dc-line)}
+#dcw .dc-modes button{flex:1;padding:15px 10px;border:0;background:var(--dc-soft);font-size:15px;font-weight:700;color:var(--dc-mut);cursor:pointer}
+#dcw .dc-modes button.on{background:#fff;color:var(--dc-ink);box-shadow:inset 0 -3px 0 var(--dc-br)}
+#dcw .dc-body{padding:20px}
+#dcw .dc-units{display:flex;gap:8px;margin-bottom:14px}
+#dcw .dc-units button{border:1px solid var(--dc-line);background:#fff;border-radius:999px;padding:7px 16px;font-weight:700;font-size:14px;cursor:pointer;color:var(--dc-mut)}
+#dcw .dc-units button.on{background:var(--dc-ink);color:#fff;border-color:var(--dc-ink)}
+#dcw .dc-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+#dcw .dc-f{display:flex;flex-direction:column;gap:5px}
+#dcw .dc-f label{font-size:14px;font-weight:700}
+#dcw .dc-f .dc-h{font-size:12.5px;color:var(--dc-mut);font-weight:400}
+#dcw .dc-f input,#dcw .dc-f select{padding:11px 12px;border:1px solid var(--dc-line);border-radius:9px;font-size:16px;font-family:inherit;background:#fff;width:100%}
+#dcw .dc-ftin{display:flex;gap:8px}
+#dcw .dc-est{font-size:12.5px;background:none;border:0;color:#b7371f;text-decoration:underline;cursor:pointer;padding:0;text-align:left}
+#dcw .dc-res{margin-top:16px;border-top:1px dashed var(--dc-line);padding-top:16px}
+#dcw .dc-verdict{font-size:17px;font-weight:800;padding:12px 14px;border-radius:10px;margin-bottom:12px}
+#dcw .dc-verdict.good{background:#eaf7ef;color:var(--dc-good);border:1px solid #bfe6cd}
+#dcw .dc-verdict.warn{background:#fdf5e6;color:var(--dc-warn);border:1px solid #f0dcae}
+#dcw .dc-verdict.bad{background:#fcecea;color:var(--dc-bad);border:1px solid #f2c6bf}
+#dcw .dc-cards{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+#dcw .dc-rc{background:var(--dc-soft);border:1px solid var(--dc-line);border-radius:10px;padding:12px}
+#dcw .dc-rc .k{font-size:12px;color:var(--dc-mut);font-weight:700;text-transform:uppercase;letter-spacing:.3px}
+#dcw .dc-rc .v{font-size:22px;font-weight:800;margin-top:2px}
+#dcw .dc-rc .s{font-size:12px;color:var(--dc-mut)}
+#dcw .dc-adv{margin-top:12px;background:var(--dc-soft);border:1px solid var(--dc-line);border-left:4px solid var(--dc-br);border-radius:8px;padding:10px 13px;font-size:14px}
+#dcw .dc-note{font-size:13px;color:var(--dc-mut);margin-top:8px}
+#dcw .dc-go{width:100%;margin-top:4px;padding:15px;border:0;border-radius:10px;background:var(--ast-global-color-0,#d7452b);color:#fff;font-size:16px;font-weight:800;cursor:pointer;font-family:inherit}
+#dcw .dc-go:hover{filter:brightness(.93)}
+#dcw .dc-actions{display:flex;gap:10px;margin-top:4px}
+#dcw .dc-actions .dc-go{margin-top:0;flex:1}
+#dcw .dc-reset{padding:15px 18px;border:1px solid var(--dc-line);border-radius:10px;background:#fff;color:var(--dc-mut);font-size:15px;font-weight:700;cursor:pointer;font-family:inherit}
+#dcw .dc-reset:hover{background:var(--dc-soft)}
+#dcw .dc-diff{display:inline-block;font-size:13px;font-weight:800;color:var(--dc-ink);background:var(--dc-soft);border:1px solid var(--dc-line);border-radius:999px;padding:5px 12px;margin-bottom:12px}
+#dcw .dc-bar{height:12px;border-radius:999px;background:var(--dc-line);overflow:hidden;margin:2px 0 4px}
+#dcw .dc-bar span{display:block;height:100%;background:var(--ast-global-color-0,#d7452b)}
+#dcw .dc-barlab{font-size:12.5px;color:var(--dc-mut);margin-bottom:12px}
+#dcw .dc-adv-panel summary{font-size:13px;font-weight:700;color:var(--dc-mut);cursor:pointer;margin:8px 0}
+@media(max-width:600px){#dcw .dc-grid,#dcw .dc-cards{grid-template-columns:1fr}}
+</style>
+<div class="dc-card-wrap">
+<div class="dc-modes"><button id="dcm1" class="on" onclick="dcSetMode('std')">How high to jump to dunk?</button><button id="dcm2" onclick="dcSetMode('rev')">Can I dunk?</button></div>
+<div class="dc-body">
+<div class="dc-units"><button id="dcu1" class="on" onclick="dcSetUnit('imp')">Imperial (ft/in)</button><button id="dcu2" onclick="dcSetUnit('met')">Metric (cm)</button></div>
+<div class="dc-grid">
+<div class="dc-f"><label>Your height <span class="dc-h">used only to estimate reach</span></label><div class="dc-ftin dc-imp"><input type="number" id="dc_hft" placeholder="ft" inputmode="numeric" oninput="dcCalc()"><input type="number" id="dc_hin" placeholder="in" inputmode="numeric" oninput="dcCalc()"></div><input class="dc-met" type="number" id="dc_hcm" placeholder="cm" inputmode="numeric" oninput="dcCalc()" style="display:none"></div>
+<div class="dc-f"><label>Standing reach <span class="dc-h">floor to fingertip, one arm up</span></label><input type="number" id="dc_reach" placeholder="in" inputmode="decimal" oninput="dcCalc()"><button type="button" class="dc-est" onclick="dcEst()">I don&rsquo;t know it — estimate from my height</button></div>
+<div class="dc-f"><label>Rim height</label><select id="dc_rim" onchange="dcCalc()"><option value="120" selected>10 ft — Standard / NBA / High School</option><option value="108">9 ft</option><option value="96">8 ft</option><option value="84">7 ft — Youth</option><option value="custom">Custom&hellip;</option></select><input type="number" id="dc_rimc" placeholder="rim height in" inputmode="decimal" oninput="dcCalc()" style="display:none"></div>
+<div class="dc-f"><label>Dunk style <span class="dc-h">clearance above rim (estimate)</span></label><select id="dc_style" onchange="dcCalc()"><option value="0">Touch the rim (+0 in)</option><option value="6" selected>Basic dunk (+6 in)</option><option value="8">Power dunk (+8 in)</option><option value="10">Windmill (+10 in)</option><option value="12">360&deg; (+12 in)</option><option value="14">Between the legs (+14 in)</option><option value="custom">Custom clearance&hellip;</option></select><input type="number" id="dc_stylec" placeholder="clearance in" inputmode="decimal" oninput="dcCalc()" style="display:none"></div>
+<div class="dc-f"><label id="dc_vlabel">Current vertical jump <span class="dc-h">optional — for your gap-to-dunk</span></label><input type="number" id="dc_vert" placeholder="in" inputmode="decimal" oninput="dcCalc()"></div>
+<div class="dc-f"><label>Body weight <span class="dc-h">optional — for jump energy</span></label><input type="number" id="dc_wt" placeholder="lb" inputmode="decimal" oninput="dcCalc()"></div>
+</div>
+<details class="dc-adv-panel"><summary>Advanced options (optional)</summary><div class="dc-grid" style="margin-top:10px"><div class="dc-f"><label>Hand span <span class="dc-h">fingertip to fingertip</span></label><input type="number" id="dc_hand" placeholder="in" inputmode="decimal" oninput="dcCalc()"></div><div class="dc-f"><label>Experience</label><select id="dc_exp" onchange="dcCalc()"><option value="">—</option><option>Beginner</option><option>Intermediate</option><option>Advanced</option><option>Elite</option></select></div><div class="dc-f"><label>Age <span class="dc-h">years</span></label><input type="number" id="dc_age" placeholder="yrs" inputmode="numeric" oninput="dcCalc()"></div></div></details>
+<div class="dc-actions"><button type="button" class="dc-go" onclick="dcCalc(true)">Calculate my vertical</button><button type="button" class="dc-reset" onclick="dcReset()">Reset</button></div>
+<div class="dc-res" id="dc_res" style="display:none"><div class="dc-verdict" id="dc_verdict"></div><div class="dc-diff" id="dc_diff"></div><div class="dc-bar" id="dc_bar" style="display:none"><span></span></div><div class="dc-barlab" id="dc_barlab"></div><div class="dc-cards" id="dc_cards"></div><div class="dc-adv" id="dc_adv"></div></div>
+<p class="dc-note" id="dc_prompt">Enter your standing reach (or estimate it) to see your result.</p>
+</div></div>
+<p class="dc-note">Clearance presets are common estimates for clearing the rim with the ball, not a fixed biomechanical rule. Hand size, ball control and takeoff style all affect a real dunk.</p>
+<script>
+(function(){
+var U="imp",M="std";
+function g(id){return document.getElementById(id);}
+window.dcSetUnit=function(u){U=u;g("dcu1").classList.toggle("on",u=="imp");g("dcu2").classList.toggle("on",u=="met");
+document.querySelectorAll("#dcw .dc-imp").forEach(function(e){e.style.display=(u=="imp")?"":"none";});
+document.querySelectorAll("#dcw .dc-met").forEach(function(e){e.style.display=(u=="met")?"":"none";});
+var l=(u=="met")?"cm":"in";g("dc_reach").placeholder=l;g("dc_vert").placeholder=l;g("dc_rimc").placeholder="rim height "+l;g("dc_stylec").placeholder="clearance "+l;g("dc_wt").placeholder=(u=="met")?"kg":"lb";dcCalc();};
+window.dcSetMode=function(m){M=m;g("dcm1").classList.toggle("on",m=="std");g("dcm2").classList.toggle("on",m=="rev");
+g("dc_vlabel").innerHTML=(m=="rev")?'Current vertical jump <span class="dc-h">required in this mode</span>':'Current vertical jump <span class="dc-h">optional — for your gap-to-dunk</span>';dcCalc();};
+function tin(v){return (U=="met")?v/2.54:v;}
+function fin(v){return (U=="met")?v*2.54:v;}
+function un(){return (U=="met")?"cm":"in";}
+function hIn(){if(U=="met"){var c=parseFloat(g("dc_hcm").value);return isNaN(c)?NaN:c/2.54;}var f=parseFloat(g("dc_hft").value),i=parseFloat(g("dc_hin").value)||0;return isNaN(f)?NaN:f*12+i;}
+window.dcEst=function(){var h=hIn();if(isNaN(h)){alert("Enter your height first so we can estimate your reach.");return;}g("dc_reach").value=Math.round(fin(h*1.33)*10)/10;dcCalc();};
+function rimIn(){var r=g("dc_rim").value;if(r=="custom"){g("dc_rimc").style.display="";var c=parseFloat(g("dc_rimc").value);return isNaN(c)?NaN:tin(c);}g("dc_rimc").style.display="none";return parseFloat(r);}
+function clrIn(){var s=g("dc_style").value;if(s=="custom"){g("dc_stylec").style.display="";var c=parseFloat(g("dc_stylec").value);return isNaN(c)?0:tin(c);}g("dc_stylec").style.display="none";return parseFloat(s);}
+function fmt(i){return (Math.round(fin(i)*10)/10)+" "+un();}
+function card(k,v,s){return '<div class="dc-rc"><div class="k">'+k+'</div><div class="v">'+v+'</div><div class="s">'+s+'</div></div>';}
+window.dcCalc=function(scroll){
+var reach=parseFloat(g("dc_reach").value);reach=isNaN(reach)?NaN:tin(reach);
+var rim=rimIn(),clr=clrIn();
+var vert=parseFloat(g("dc_vert").value);vert=isNaN(vert)?NaN:tin(vert);
+var wt=parseFloat(g("dc_wt").value);
+if(isNaN(reach)||isNaN(rim)){g("dc_res").style.display="none";g("dc_prompt").style.display="";return;}
+var target=rim+clr,req=target-reach,gA=386.09,cards="",verdict="",vc="",adv="";
+if(M=="rev"){
+if(isNaN(vert)){g("dc_res").style.display="none";g("dc_prompt").style.display="";g("dc_prompt").textContent="Enter your current vertical jump to find out if you can dunk.";return;}
+var jr=reach+vert,mg=jr-target,rm=jr-rim;
+if(mg>=0){vc="good";verdict="&#10003; Yes — you can dunk this. You clear the target by "+fmt(mg)+".";}
+else if(rm>=0){vc="warn";verdict="&#9888; Not a clean dunk yet — but you can touch the rim. You&rsquo;re "+fmt(-mg)+" short of this style.";}
+else{vc="bad";verdict="&#10007; Not yet — you&rsquo;re "+fmt(-rm)+" short of even touching the rim.";}
+cards+=card("Your max jump reach",fmt(jr),"reach + vertical");
+cards+=card("Target reach",fmt(target),"rim + clearance");
+cards+=card(mg>=0?"To spare":"Short by",fmt(Math.abs(mg)),mg>=0?"above the target":"to complete this dunk");
+cards+=card("Required vertical",fmt(Math.max(req,0)),"to dunk this style");
+adv="<strong>Jump physics:</strong> takeoff velocity &asymp; "+(Math.round(Math.sqrt(2*gA*vert)/12*10)/10)+" ft/s &middot; hang time &asymp; "+(Math.round(Math.sqrt(8*vert/gA)*100)/100)+" s.";
+}else{
+if(req<=0){vc="good";verdict="&#10003; You can already reach this flat-footed — no jump needed!";}
+cards+=card("Required vertical jump",fmt(Math.max(req,0)),"to complete this dunk");
+cards+=card("Target reach",fmt(target),"rim + clearance");
+cards+=card("Your standing reach",fmt(reach),"floor to fingertip");
+cards+=card("Jump to touch rim",fmt(Math.max(rim-reach,0)),"clearance +0");
+if(!isNaN(vert)){var jr=reach+vert,gap=target-jr;
+if(gap<=0){vc="good";verdict="&#10003; You can dunk this now — "+fmt(-gap)+" to spare over the target.";}
+else if(jr>=rim){vc="warn";verdict="&#9888; You can touch the rim, but you&rsquo;re "+fmt(gap)+" short of this dunk style.";}
+else{vc="bad";verdict="&#10007; You&rsquo;re "+fmt(gap)+" short of this dunk, and "+fmt(rim-jr)+" short of touching the rim.";}
+cards+=card("Your gap to dunk",(gap<=0?"Cleared":fmt(gap)),gap<=0?"over the target":"still needed");
+}else if(req>0){vc="warn";verdict="You need a "+fmt(req)+" vertical for this dunk. Add your current vertical to see your gap.";}
+if(!isNaN(vert)){adv="<strong>Jump physics:</strong> takeoff velocity &asymp; "+(Math.round(Math.sqrt(2*gA*vert)/12*10)/10)+" ft/s &middot; hang time &asymp; "+(Math.round(Math.sqrt(8*vert/gA)*100)/100)+" s.";
+if(!isNaN(wt)){var wkg=(U=="met")?wt:wt*0.453592;adv+=" Jumping energy &asymp; "+Math.round(wkg*9.81*vert*0.0254)+" J.";}}
+else{adv="<strong>Required physics:</strong> a "+fmt(Math.max(req,0))+" vertical needs takeoff velocity &asymp; "+(Math.round(Math.sqrt(2*gA*Math.max(req,0))/12*10)/10)+" ft/s and &asymp; "+(Math.round(Math.sqrt(8*Math.max(req,0)/gA)*100)/100)+" s hang time.";}
+}
+var rv=Math.max(req,0),dt;if(rv<=0)dt="Already in reach";else if(rv<=24)dt="Difficulty: Easy";else if(rv<=30)dt="Difficulty: Moderate";else if(rv<=34)dt="Difficulty: Hard";else if(rv<=40)dt="Difficulty: Very hard";else dt="Difficulty: Elite";var exv=g("dc_exp")?g("dc_exp").value:"";if(exv)dt+=" · "+exv;g("dc_diff").textContent=dt;
+var need=target-reach;if(!isNaN(vert)){var pc=need<=0?100:Math.max(0,Math.min(100,(vert/need)*100));g("dc_bar").style.display="";g("dc_bar").firstChild.style.width=pc+"%";g("dc_barlab").textContent=Math.round(pc)+"% of the jump you need"+(pc>=100?" — you can dunk this!":"");}else{g("dc_bar").style.display="none";g("dc_barlab").textContent="";}
+g("dc_verdict").className="dc-verdict "+(vc||"warn");g("dc_verdict").innerHTML=verdict;
+g("dc_cards").innerHTML=cards;g("dc_adv").innerHTML=adv;g("dc_res").style.display="";g("dc_prompt").style.display="none";if(scroll){g("dc_res").scrollIntoView({behavior:"smooth",block:"nearest"});}};
+window.dcReset=function(){["dc_hft","dc_hin","dc_hcm","dc_reach","dc_rimc","dc_stylec","dc_vert","dc_wt","dc_hand","dc_age"].forEach(function(i){var e=document.getElementById(i);if(e)e.value="";});var r=document.getElementById("dc_rim");if(r)r.selectedIndex=0;var s=document.getElementById("dc_style");if(s)s.selectedIndex=1;var ex=document.getElementById("dc_exp");if(ex)ex.selectedIndex=0;document.getElementById("dc_res").style.display="none";var p=document.getElementById("dc_prompt");p.style.display="";p.textContent="Enter your standing reach (or estimate it) to see your result.";};
+})();
+</script>
+</div>
+</body>
+</html>
